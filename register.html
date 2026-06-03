@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VM Twitter - تسجيل</title>
+
+<link rel="stylesheet" href="./assets/style.css">
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:radial-gradient(circle at top,#0b1220,#05070d);
+  color:#e6f1ff;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+/* أكبر + أنظف */
+.box{
+  width:92%;
+  max-width:420px;
+  background:linear-gradient(145deg,#0a0f1a,#060912);
+  border:1px solid rgba(0,140,255,0.25);
+  padding:25px;
+  border-radius:18px;
+  box-shadow:0 0 25px rgba(0,140,255,0.15);
+  backdrop-filter: blur(6px);
+}
+
+/* عنوان أقوى */
+h2{
+  text-align:center;
+  color:#4db5ff;
+  margin-bottom:20px;
+  font-size:1.4rem;
+  text-shadow:0 0 10px rgba(0,140,255,0.4);
+}
+
+/* inputs أجمل */
+input{
+  width:100%;
+  padding:14px;
+  margin:10px 0;
+  border-radius:12px;
+  border:1px solid rgba(0,140,255,0.25);
+  background:#0b1220;
+  color:white;
+  outline:none;
+  font-size:14px;
+}
+
+/* زر احترافي */
+button{
+  width:100%;
+  padding:14px;
+  margin-top:10px;
+  background:linear-gradient(145deg,#4db5ff,#1f6fff);
+  border:none;
+  border-radius:12px;
+  font-weight:bold;
+  cursor:pointer;
+  color:#000;
+  font-size:15px;
+  transition:0.2s;
+}
+
+button:hover{
+  transform:scale(1.03);
+  box-shadow:0 0 18px rgba(0,140,255,0.4);
+}
+
+button:active{
+  transform:scale(0.98);
+}
+
+/* رسالة */
+#msg{
+  margin-top:12px;
+  text-align:center;
+  color:#a9c7e6;
+  font-size:13px;
+}
+
+/* شكل "تويتر/VM" بسيط */
+.logo{
+  text-align:center;
+  margin-bottom:10px;
+  font-weight:bold;
+  color:#4db5ff;
+  letter-spacing:1px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+  <div class="logo">VM TWITTER</div>
+
+  <h2>إنشاء حساب جديد</h2>
+
+  <input id="username" placeholder="اسم المستخدم">
+  <input id="password" type="password" placeholder="كلمة المرور">
+
+  <button onclick="register()">تسجيل</button>
+
+  <div id="msg"></div>
+</div>
+
+<script type="module">
+import { supabase, generateVM } from "./assets/app.js";
+
+window.register = async function(){
+
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+
+  if(!username || !password){
+    document.getElementById("msg").innerText = "كمل البيانات أول";
+    return;
+  }
+
+  const vm_number = generateVM();
+
+  const { data, error } = await supabase.auth.signUp({
+    email: username + "@vm.com",
+    password: password
+  });
+
+  if(error){
+    document.getElementById("msg").innerText = error.message;
+    return;
+  }
+
+  await supabase.from("users").insert([
+    {
+      id: data.user.id,
+      username,
+      vm_number
+    }
+  ]);
+
+  document.getElementById("msg").innerText =
+    "تم إنشاء الحساب ✅ رقم VM: " + vm_number;
+};
+</script>
+
+</body>
+</html>
