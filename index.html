@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VM Twitter</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#05070d;
+  color:#e6f1ff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+.box{
+  width:90%;
+  max-width:420px;
+  padding:25px;
+  border-radius:16px;
+
+  background:linear-gradient(145deg,#0a0f1a,#060912);
+  border:1px solid rgba(0,140,255,0.25);
+
+  box-shadow:0 0 25px rgba(0,140,255,0.2);
+  text-align:center;
+}
+
+h2{
+  color:#4db5ff;
+  margin-bottom:5px;
+  text-shadow:0 0 10px rgba(0,140,255,0.5);
+}
+
+p.subtitle{
+  color:#a9c7e6;
+  font-size:13px;
+  margin-bottom:20px;
+}
+
+input{
+  width:100%;
+  padding:12px;
+  margin:8px 0;
+
+  border-radius:10px;
+  border:1px solid rgba(0,140,255,0.3);
+  background:#0b1220;
+  color:white;
+  outline:none;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+
+  background:#4db5ff;
+  border:none;
+  border-radius:10px;
+
+  font-weight:bold;
+  cursor:pointer;
+
+  transition:0.2s;
+}
+
+button:hover{
+  transform:scale(1.03);
+  box-shadow:0 0 15px rgba(77,181,255,0.4);
+}
+
+#msg{
+  margin-top:15px;
+  font-size:13px;
+  color:#a9c7e6;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+  <h2>VM Twitter</h2>
+  <p class="subtitle">إنشاء حساب جديد داخل VM-Twitter</p>
+
+  <input id="username" placeholder="اسم المستخدم">
+  <input id="password" type="password" placeholder="كلمة المرور">
+
+  <button onclick="register()">تسجيل</button>
+
+  <p id="msg"></p>
+</div>
+
+<script type="module">
+import { supabase, generateVM } from "./assets/app.js";
+
+window.register = async function(){
+
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+
+  const vm_number = generateVM();
+
+  const { data, error } = await supabase.auth.signUp({
+    email: username + "@vm.com",
+    password: password
+  });
+
+  if(error){
+    document.getElementById("msg").innerText = "❌ " + error.message;
+    return;
+  }
+
+  await supabase.from("users").insert([
+    {
+      id: data.user.id,
+      username,
+      vm_number
+    }
+  ]);
+
+  document.getElementById("msg").innerText =
+    "✅ تم إنشاء حسابك | رقم VM: " + vm_number;
+};
+</script>
+
+</body>
+</html>
